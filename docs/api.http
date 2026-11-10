@@ -1,0 +1,55 @@
+@base = https://dummyjson.com
+
+### 1. পণ্যের তালিকা, পাতা ১
+GET {{base}}/products?limit=10&skip=0
+
+### 2. পাতা ২
+GET {{base}}/products?limit=10&skip=10
+
+### 3. Search
+GET {{base}}/products/search?q=phone
+
+### 4. একটা পণ্য
+GET {{base}}/products/1
+
+### 5. ইচ্ছা করে ধীর নেটওয়ার্কের নকল (৩ সেকেন্ড দেরি)
+GET {{base}}/products?limit=5&delay=3000
+
+### 6. নেই এমন পণ্য (ভুল ঘটালে কী ফেরত দেয়)
+GET {{base}}/products/999999
+
+### 7. Login, সঠিক
+# @name login
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "emilys",
+  "password": "emilyspass",
+  "expiresInMins": 30
+}
+
+### 8. Login, ভুল পাসওয়ার্ড (ইচ্ছা করে)
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "emilys",
+  "password": "wrong-password"
+}
+
+### 9. নিজের তথ্য, Token ছাড়া
+GET {{base}}/auth/me
+
+### 10. নিজের তথ্য, Token সহ
+GET {{base}}/auth/me
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 11. Token নবায়ন
+POST {{base}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{login.response.body.$.refreshToken}}",
+  "expiresInMins": 30
+}
