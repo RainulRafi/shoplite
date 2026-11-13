@@ -12,6 +12,7 @@ enum ApiErrorType {
   tooManyRequests,
   server,
   cancelled,
+  parsing,
   unknown,
 }
 
@@ -30,6 +31,12 @@ class ApiException implements Exception {
     this.statusCode,
     this.serverMessage,
   });
+
+  const ApiException.parsing()
+    : type = ApiErrorType.parsing,
+      message = 'The server sent data we could not read.',
+      statusCode = null,
+      serverMessage = null;
 
   bool get isRetryable =>
       type == ApiErrorType.noConnection ||
