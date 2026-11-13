@@ -95,4 +95,9 @@ void main() {
       expect(result.serverMessage, 'Invalid credentials');
     });
   });
+  test('a parsing error is not worth retrying', () {
+    const error = ApiException.parsing();
+    expect(error.type, ApiErrorType.parsing);
+    expect(error.isRetryable, isFalse);
+  });
 }
