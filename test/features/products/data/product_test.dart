@@ -51,7 +51,6 @@ void main() {
     });
 
     test('a price sent as a whole number still works', () {
-      // JSON-এ 10 আর 10.0 একই, কিন্তু Dart-এ int আর double আলাদা
       final product = Product.fromJson({
         'id': 3,
         'title': 'Whole',
@@ -77,7 +76,7 @@ void main() {
       'a missing required field throws, so bad data is not shown silently',
       () {
         expect(
-          () => Product.fromJson({'id': 5, 'price': 1}), // title নেই
+          () => Product.fromJson({'id': 5, 'price': 1}),
           throwsA(isA<TypeError>()),
         );
       },
@@ -112,8 +111,14 @@ void main() {
     });
 
     test('has no more on the last page', () {
-      // 190 বাদ + এই পাতায় 4 = 194, মোটের সমান, আর নেই
       final page = ProductPage.fromJson(pageJson(skip: 190, count: 4));
+      expect(page.hasMore, isFalse);
+    });
+
+    test('missing paging numbers fall back to safe values', () {
+      final page = ProductPage.fromJson({'products': <dynamic>[]});
+      expect(page.products, isEmpty);
+      expect(page.total, 0);
       expect(page.hasMore, isFalse);
     });
   });

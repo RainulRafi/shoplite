@@ -11,10 +11,17 @@ class ApiProductRepository implements ProductRepository {
   ApiProductRepository(this._api);
 
   @override
-  Future<ProductPage> fetchProducts({int limit = 20, int skip = 0}) async {
+  Future<ProductPage> fetchProducts({
+    int limit = 20,
+    int skip = 0,
+    String? query,
+  }) async {
+    final text = query?.trim() ?? '';
+    final searching = text.isNotEmpty;
+
     final json = await _api.get(
-      '/products',
-      queryParameters: {'limit': limit, 'skip': skip},
+      searching ? '/products/search' : '/products',
+      queryParameters: {if (searching) 'q': text, 'limit': limit, 'skip': skip},
     );
     return _parse(() => ProductPage.fromJson(json as Map<String, dynamic>));
   }

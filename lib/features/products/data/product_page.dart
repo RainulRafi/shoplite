@@ -15,13 +15,15 @@ class ProductPage {
 
   factory ProductPage.fromJson(Map<String, dynamic> json) {
     final raw = json['products'] as List<dynamic>;
+
     return ProductPage(
       products: raw
           .map((item) => Product.fromJson(item as Map<String, dynamic>))
           .toList(),
-      total: json['total'] as int,
-      skip: json['skip'] as int,
-      limit: json['limit'] as int,
+
+      total: (json['total'] as num?)?.toInt() ?? raw.length,
+      skip: (json['skip'] as num?)?.toInt() ?? 0,
+      limit: (json['limit'] as num?)?.toInt() ?? raw.length,
     );
   }
 
