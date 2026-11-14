@@ -42,6 +42,41 @@ void main() {
     expect(sent, {'limit': 5, 'skip': 10});
   });
 
+  test(
+    'a search uses the search path and sends the trimmed word as q',
+    () async {
+      when(() => api.get(any(), queryParameters: any(named: 'queryParameters')))
+          .thenAnswer((_) async => {'products': <dynamic>[], 'total': 0});
+
+      final page = await repository.fetchProducts(
+        limit: 5,
+        skip: 10,
+        query: '  phone ',
+      );
+
+      final sent = verify(
+        () => api.get(
+          '/products/search',
+          queryParameters: captureAny(named: 'queryParameters'),
+        ),
+      ).captured.single;
+      expect(sent, {'q': 'phone', 'limit': 5, 'skip': 10});
+      expect(page.products, isEmpty);
+    },
+  );
+
+  test('a blank query is treated as no search at all', () async {
+    when(() => api.get(any(), queryParameters: any(named: 'queryParameters')))
+        .thenAnswer((_) async => {'products': <dynamic>[], 'total': 0});
+
+    await repository.fetchProducts(query: '   ');
+
+    verify(
+      () =>
+          api.get('/products', queryParameters: any(named: 'queryParameters')),
+    ).called(1);
+  });
+
   test('fetchProduct reads one product by id', () async {
     when(() => api.get('/products/7'))
         .thenAnswer((_) async => {'id': 7, 'title': 'Seven', 'price': 2});
