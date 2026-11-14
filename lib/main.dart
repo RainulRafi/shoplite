@@ -1,48 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
+import 'core/network/api_client.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
-import 'dev/style_guide_screen.dart';
+import 'features/products/data/api_product_repository.dart';
+import 'features/products/data/product_repository.dart';
+import 'features/products/presentation/product_list_provider.dart';
+import 'features/products/presentation/product_list_screen.dart';
 
 void main() {
-  runApp(const ShopLiteApp());
+  final ProductRepository productRepository = ApiProductRepository(ApiClient());
+  runApp(ShopLiteApp(productRepository: productRepository));
 }
 
 class ShopLiteApp extends StatelessWidget {
-  const ShopLiteApp({super.key});
+  final ProductRepository productRepository;
+
+  const ShopLiteApp({super.key, required this.productRepository});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ShopLite',
-      debugShowCheckedModeBanner: false,
-      theme: buildAppTheme(Brightness.light),
-      darkTheme: buildAppTheme(Brightness.dark),
-
-      // ThemeMode.system follows the phone's own dark/light setting.
-      // A separate toggle could be added to Settings later; it isn't needed now.
-      themeMode: ThemeMode.system,
-
-      // In dark mode, the status bar clock and battery icons blend in unless they are light.
-      builder: (context, child) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        final colors = isDark ? AppColors.dark : AppColors.light;
-        return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: isDark
-                ? Brightness.light
-                : Brightness.dark,
-            systemNavigationBarColor: colors.surface,
-            systemNavigationBarIconBrightness: isDark
-                ? Brightness.light
-                : Brightness.dark,
-          ),
-          child: child!,
-        );
-      },
-      home: const StyleGuideScreen(),
+    return ChangeNotifierProvider(
+      create: (_) => ProductListProvider(productRepository)..load(),
+      child: MaterialApp(
+        title: 'ShopLite',
+        debugShowCheckedModeBanner: false,
+        theme: buildAppTheme(Brightness.light),
+        darkTheme: buildAppTheme(Brightness.dark),
+        themeMode: ThemeMode.system,
+        builder: (context, child) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          final colors = isDark ? AppColors.dark : AppColors.light;
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: isDark
+                  ? Brightness.light
+                  : Brightness.dark,
+              systemNavigationBarColor: colors.surface,
+              systemNavigationBarIconBrightness: isDark
+                  ? Brightness.light
+                  : Brightness.dark,
+            ),
+            child: child!,
+          );
+        },
+        home: const ProductListScreen(),
+      ),
     );
   }
 }
