@@ -2,28 +2,22 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/price_format.dart';
+import '../../../../core/utils/text_format.dart';
 import '../../data/product.dart';
 import 'product_image.dart';
+import 'stock_note.dart';
 
 class ProductTile extends StatelessWidget {
   final Product product;
-
   final VoidCallback? onTap;
 
   const ProductTile({super.key, required this.product, this.onTap});
-
-  // "mens-shirts" -> "Mens shirts"
-  String _prettyCategory(String raw) {
-    if (raw.isEmpty) return '';
-    final spaced = raw.replaceAll('-', ' ');
-    return spaced[0].toUpperCase() + spaced.substring(1);
-  }
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
 
-    final subtitle = product.brand ?? _prettyCategory(product.category);
+    final subtitle = product.brand ?? prettyCategory(product.category);
 
     return InkWell(
       onTap: onTap,
@@ -97,27 +91,7 @@ class ProductTile extends StatelessWidget {
                     ],
                   ),
 
-                  if (!product.inStock) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      'Out of stock',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: c.danger,
-                      ),
-                    ),
-                  ] else if (product.stock <= 10) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      'Only ${product.stock} left',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: c.highlight,
-                      ),
-                    ),
-                  ],
+                  StockNote(product: product),
                 ],
               ),
             ),
