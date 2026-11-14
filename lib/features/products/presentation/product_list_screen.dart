@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import 'product_detail_screen.dart';
 import 'product_list_provider.dart';
 import 'widgets/product_skeleton_tile.dart';
 import 'widgets/product_tile.dart';
@@ -30,7 +31,6 @@ class ProductListScreen extends StatelessWidget {
           ),
         ),
       ),
-
       body: Consumer<ProductListProvider>(
         builder: (context, provider, child) {
           switch (provider.status) {
@@ -58,13 +58,38 @@ class ProductListScreen extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    child: ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
-                      itemCount: provider.products.length,
-                      separatorBuilder: (_, _) =>
-                          Divider(height: 1, color: c.border),
-                      itemBuilder: (_, index) =>
-                          ProductTile(product: provider.products[index]),
+                 
+                    child: RefreshIndicator(
+                      color: c.accentFg,
+                      backgroundColor: c.surface,
+                      onRefresh: () async {
+                        final failure = await provider.refresh();
+                        if (failure != null && context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(failure.message)),
+                          );
+                        }
+                      },
+                      child: ListView.separated(
+                        
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+                        itemCount: provider.products.length,
+                        separatorBuilder: (_, _) =>
+                            Divider(height: 1, color: c.border),
+                        itemBuilder: (_, index) {
+                          final product = provider.products[index];
+                          return ProductTile(
+                            product: product,
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    ProductDetailScreen(product: product),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
@@ -75,6 +100,7 @@ class ProductListScreen extends StatelessWidget {
     );
   }
 }
+
 
 class _SkeletonList extends StatelessWidget {
   const _SkeletonList();
@@ -95,6 +121,7 @@ class _SkeletonList extends StatelessWidget {
     );
   }
 }
+
 
 class _ErrorView extends StatelessWidget {
   final ApiException error;
