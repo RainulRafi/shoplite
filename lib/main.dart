@@ -22,8 +22,14 @@ class ShopLiteApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ProductListProvider(productRepository)..load(),
+    return MultiProvider(
+      providers: [
+        Provider<ProductRepository>.value(value: productRepository),
+        ChangeNotifierProvider(
+          create: (context) =>
+              ProductListProvider(context.read<ProductRepository>())..load(),
+        ),
+      ],
       child: MaterialApp(
         title: 'ShopLite',
         debugShowCheckedModeBanner: false,
