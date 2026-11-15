@@ -100,4 +100,24 @@ void main() {
     expect(error.type, ApiErrorType.parsing);
     expect(error.isRetryable, isFalse);
   });
+
+  test('the session-expired marker becomes a session-expired error', () {
+    final options = RequestOptions(path: '/x');
+    final result = ApiException.fromDio(
+      DioException(
+        requestOptions: options,
+        type: DioExceptionType.badResponse,
+        error: const SessionExpiredError(),
+      ),
+    );
+    expect(result.type, ApiErrorType.sessionExpired);
+    expect(result.isRetryable, isFalse);
+  });
+
+  test('wrong credentials have a clear message and are not worth retrying', () {
+    const error = ApiException.invalidCredentials();
+    expect(error.type, ApiErrorType.invalidCredentials);
+    expect(error.message, 'Incorrect username or password.');
+    expect(error.isRetryable, isFalse);
+  });
 }
