@@ -1,5 +1,4 @@
 class AppConfig {
-
   AppConfig._();
 
   static const String baseUrl = String.fromEnvironment(
@@ -12,4 +11,9 @@ class AppConfig {
 
   // Maximum time to wait for a response after connecting.
   static const Duration receiveTimeout = Duration(seconds: 15);
+
+  static const int accessTokenMinutes = int.fromEnvironment(
+    'ACCESS_TOKEN_MINUTES',
+    defaultValue: 30,
+  );
 }
