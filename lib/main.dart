@@ -1,30 +1,61 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'core/network/api_client.dart';
+import 'core/storage/secure_token_store.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/data/api_auth_repository.dart';
+import 'features/auth/presentation/auth_provider.dart';
 import 'features/products/data/api_product_repository.dart';
 import 'features/products/data/product_repository.dart';
 import 'features/products/presentation/product_list_provider.dart';
-import 'features/products/presentation/product_list_screen.dart';
+import 'features/shell/app_shell.dart';
 
 void main() {
-  final ProductRepository productRepository = ApiProductRepository(ApiClient());
-  runApp(ShopLiteApp(productRepository: productRepository));
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final tokenStore = SecureTokenStore();
+
+  late final AuthProvider authProvider;
+  final api = ApiClient(
+    tokenStore: tokenStore,
+    onSessionExpired: () => authProvider.handleSessionExpired(),
+  );
+
+  final ProductRepository productRepository = ApiProductRepository(api);
+  authProvider = AuthProvider(ApiAuthRepository(api), tokenStore);
+
+  unawaited(authProvider.restore());
+
+  runApp(
+    ShopLiteApp(
+      productRepository: productRepository,
+      authProvider: authProvider,
+    ),
+  );
 }
 
 class ShopLiteApp extends StatelessWidget {
   final ProductRepository productRepository;
+  final AuthProvider authProvider;
 
-  const ShopLiteApp({super.key, required this.productRepository});
+  const ShopLiteApp({
+    super.key,
+    required this.productRepository,
+    required this.authProvider,
+  });
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         Provider<ProductRepository>.value(value: productRepository),
+
+        ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
         ChangeNotifierProvider(
           create: (context) =>
               ProductListProvider(context.read<ProductRepository>())..load(),
@@ -53,7 +84,8 @@ class ShopLiteApp extends StatelessWidget {
             child: child!,
           );
         },
-        home: const ProductListScreen(),
+
+        home: const AppShell(),
       ),
     );
   }

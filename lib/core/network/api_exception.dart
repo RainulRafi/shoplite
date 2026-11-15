@@ -13,7 +13,13 @@ enum ApiErrorType {
   server,
   cancelled,
   parsing,
+  invalidCredentials,
+  sessionExpired,
   unknown,
+}
+
+class SessionExpiredError implements Exception {
+  const SessionExpiredError();
 }
 
 class ApiException implements Exception {
@@ -38,6 +44,18 @@ class ApiException implements Exception {
       statusCode = null,
       serverMessage = null;
 
+  const ApiException.invalidCredentials()
+    : type = ApiErrorType.invalidCredentials,
+      message = 'Incorrect username or password.',
+      statusCode = null,
+      serverMessage = null;
+
+  const ApiException.sessionExpired()
+    : type = ApiErrorType.sessionExpired,
+      message = 'Your session has ended. Please sign in again.',
+      statusCode = null,
+      serverMessage = null;
+
   bool get isRetryable =>
       type == ApiErrorType.noConnection ||
       type == ApiErrorType.timeout ||
@@ -45,10 +63,15 @@ class ApiException implements Exception {
       type == ApiErrorType.server;
 
   factory ApiException.fromDio(DioException e) {
+    if (e.error is SessionExpiredError) {
+      return const ApiException.sessionExpired();
+    }
+
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
+      case DioExceptionType.transformTimeout:
         return const ApiException(
           type: ApiErrorType.timeout,
           message: 'The server took too long to respond. Please try again.',
@@ -87,9 +110,6 @@ class ApiException implements Exception {
           type: ApiErrorType.unknown,
           message: 'Something unexpected happened. Please try again.',
         );
-      case DioExceptionType.transformTimeout:
-        // TODO: Handle this case.
-        throw UnimplementedError();
     }
   }
 
