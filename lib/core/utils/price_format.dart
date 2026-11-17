@@ -1,3 +1,3 @@
-String formatPrice(double value) {
-  return '\$${value.toStringAsFixed(2)}';
-}
+import '../money/money.dart';
+
+String formatPrice(double value) => Money.fromDollars(value).format();
