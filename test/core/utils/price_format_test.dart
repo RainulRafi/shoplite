@@ -7,4 +7,8 @@ void main() {
     expect(formatPrice(8.944), '\$8.94');
     expect(formatPrice(9.999), '\$10.00');
   });
+
+  test('uses thousands separators, the same as the cart does', () {
+    expect(formatPrice(1299), '\$1,299.00');
+  });
 }
