@@ -3,7 +3,13 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/state_message.dart';
-import '../data/user_profile.dart';
+import '../../addresses/presentation/address_provider.dart';
+import '../../addresses/presentation/addresses_screen.dart';
+import '../../profile/domain/profile_data.dart';
+import '../../profile/presentation/edit_profile_screen.dart';
+import '../../profile/presentation/profile_provider.dart';
+import '../../wishlist/presentation/wishlist_provider.dart';
+import '../../wishlist/presentation/wishlist_screen.dart';
 import 'auth_provider.dart';
 import 'require_login.dart';
 
@@ -44,6 +50,17 @@ class AccountScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+void _openSettings(BuildContext context) {
+  Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      builder: (_) => Scaffold(
+        appBar: AppBar(title: const Text('Settings')),
+        body: const SizedBox.shrink(),
+      ),
+    ),
+  );
 }
 
 class _GuestView extends StatelessWidget {
@@ -108,6 +125,16 @@ class _GuestView extends StatelessWidget {
             ),
           ),
         ),
+        Divider(height: 1, color: c.border),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: _MenuRow(
+            icon: Icons.settings_outlined,
+            title: 'Settings',
+            onTap: () => _openSettings(context),
+          ),
+        ),
+        const SizedBox(height: 8),
       ],
     );
   }
@@ -116,13 +143,30 @@ class _GuestView extends StatelessWidget {
 class _SignedInView extends StatelessWidget {
   const _SignedInView();
 
+  Future<void> _editProfile(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => const EditProfileScreen(),
+      ),
+    );
+    if (saved == true) {
+      messenger
+        ..clearSnackBars()
+        ..showSnackBar(const SnackBar(content: Text('Profile saved.')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final auth = context.watch<AuthProvider>();
-    final user = auth.user;
+    final profile = context.watch<ProfileProvider>().effective;
+    final addresses = context.watch<AddressProvider>();
+    final wishlist = context.watch<WishlistProvider>();
 
-    if (user == null) {
+    if (profile == null) {
       final error = auth.profileError;
       if (error == null) return const _ProfileSkeleton();
 
@@ -166,7 +210,6 @@ class _SignedInView extends StatelessWidget {
     return RefreshIndicator(
       color: c.accentFg,
       backgroundColor: c.surface,
-
       onRefresh: () async {
         await auth.loadProfile();
         final error = auth.profileError;
@@ -181,14 +224,14 @@ class _SignedInView extends StatelessWidget {
         children: [
           Row(
             children: [
-              _Avatar(user: user),
+              _Avatar(profile: profile),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      user.fullName,
+                      profile.fullName,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -197,12 +240,19 @@ class _SignedInView extends StatelessWidget {
                         color: c.ink,
                       ),
                     ),
-                    if (user.email.isNotEmpty) ...[
+                    if (profile.email.isNotEmpty) ...[
                       const SizedBox(height: 2),
                       Text(
-                        user.email,
+                        profile.email,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 14, color: c.muted),
+                      ),
+                    ],
+                    if (profile.phone.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        profile.phone,
                         style: TextStyle(fontSize: 14, color: c.muted),
                       ),
                     ],
@@ -211,14 +261,40 @@ class _SignedInView extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 24),
           Divider(height: 1, color: c.border),
-          _InfoRow(label: 'Username', value: user.username),
+          _MenuRow(
+            icon: Icons.edit_outlined,
+            title: 'Edit profile',
+            onTap: () => _editProfile(context),
+          ),
           Divider(height: 1, color: c.border),
-          if (user.email.isNotEmpty) ...[
-            _InfoRow(label: 'Email', value: user.email),
-            Divider(height: 1, color: c.border),
-          ],
+          _MenuRow(
+            icon: Icons.location_on_outlined,
+            title: 'Addresses',
+            trailing: addresses.addresses.isEmpty
+                ? null
+                : '${addresses.addresses.length}',
+            onTap: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const AddressesScreen())),
+          ),
+          Divider(height: 1, color: c.border),
+          _MenuRow(
+            icon: Icons.favorite_border,
+            title: 'Wishlist',
+            trailing: wishlist.count == 0 ? null : '${wishlist.count}',
+            onTap: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const WishlistScreen())),
+          ),
+          Divider(height: 1, color: c.border),
+          _MenuRow(
+            icon: Icons.settings_outlined,
+            title: 'Settings',
+            onTap: () => _openSettings(context),
+          ),
+          Divider(height: 1, color: c.border),
           const SizedBox(height: 28),
           OutlinedButton(
             onPressed: auth.signOut,
@@ -242,17 +318,57 @@ class _SignedInView extends StatelessWidget {
   }
 }
 
-class _Avatar extends StatelessWidget {
-  final UserProfile user;
+class _MenuRow extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String? trailing;
+  final VoidCallback onTap;
 
-  const _Avatar({required this.user});
+  const _MenuRow({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+
+    return InkWell(
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 56),
+        child: Row(
+          children: [
+            Icon(icon, size: 22, color: c.muted),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(title, style: TextStyle(fontSize: 15, color: c.ink)),
+            ),
+            if (trailing != null) ...[
+              Text(trailing!, style: TextStyle(fontSize: 14, color: c.faint)),
+              const SizedBox(width: 8),
+            ],
+            Icon(Icons.chevron_right, size: 22, color: c.subtle),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Avatar extends StatelessWidget {
+  final EffectiveProfile profile;
+
+  const _Avatar({required this.profile});
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
 
     return Semantics(
-      label: 'Profile picture of ${user.fullName}',
+      label: 'Profile picture of ${profile.fullName}',
       excludeSemantics: true,
       child: Container(
         width: 72,
@@ -266,17 +382,17 @@ class _Avatar extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             Text(
-              user.initials,
+              profile.initials,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
                 color: c.accentFg,
               ),
             ),
-            if (user.image.isNotEmpty)
+            if (profile.image.isNotEmpty)
               ClipOval(
                 child: Image.network(
-                  user.image,
+                  profile.image,
                   width: 72,
                   height: 72,
                   fit: BoxFit.cover,
@@ -285,37 +401,6 @@ class _Avatar extends StatelessWidget {
               ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _InfoRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 96,
-            child: Text(label, style: TextStyle(fontSize: 14, color: c.muted)),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(fontSize: 14, height: 1.4, color: c.ink),
-            ),
-          ),
-        ],
       ),
     );
   }
