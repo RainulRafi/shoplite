@@ -12,6 +12,8 @@ import '../../wishlist/presentation/wishlist_provider.dart';
 import '../../wishlist/presentation/wishlist_screen.dart';
 import 'auth_provider.dart';
 import 'require_login.dart';
+import '../../orders/presentation/orders_provider.dart';
+import '../../orders/presentation/orders_screen.dart';
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -165,6 +167,7 @@ class _SignedInView extends StatelessWidget {
     final profile = context.watch<ProfileProvider>().effective;
     final addresses = context.watch<AddressProvider>();
     final wishlist = context.watch<WishlistProvider>();
+    final orders = context.watch<OrdersProvider>();
 
     if (profile == null) {
       final error = auth.profileError;
@@ -269,6 +272,16 @@ class _SignedInView extends StatelessWidget {
             onTap: () => _editProfile(context),
           ),
           Divider(height: 1, color: c.border),
+
+          _MenuRow(
+            icon: Icons.receipt_long_outlined,
+            title: 'My orders',
+            trailing: orders.orders.isEmpty ? null : '${orders.orders.length}',
+            onTap: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const OrdersScreen())),
+          ),
+          Divider(height: 1, color: c.border),
+
           _MenuRow(
             icon: Icons.location_on_outlined,
             title: 'Addresses',

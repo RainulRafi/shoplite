@@ -17,6 +17,9 @@ import 'features/auth/presentation/auth_provider.dart';
 import 'features/cart/data/cart_repository.dart';
 import 'features/cart/data/sqlite_cart_repository.dart';
 import 'features/cart/presentation/cart_provider.dart';
+import 'features/orders/data/order_repository.dart';
+import 'features/orders/data/sqlite_order_repository.dart';
+import 'features/orders/presentation/orders_provider.dart';
 import 'features/products/data/api_product_repository.dart';
 import 'features/products/data/product_repository.dart';
 import 'features/products/presentation/product_list_provider.dart';
@@ -37,6 +40,7 @@ class AppDependencies {
   final AddressRepository addresses;
   final WishlistRepository wishlist;
   final ProfileRepository profile;
+  final OrderRepository orders;
   final AuthProvider auth;
   final SettingsProvider settings;
 
@@ -46,6 +50,7 @@ class AppDependencies {
     required this.addresses,
     required this.wishlist,
     required this.profile,
+    required this.orders,
     required this.auth,
     required this.settings,
   });
@@ -78,6 +83,7 @@ Future<void> main() async {
         addresses: SqliteAddressRepository(() => AppDatabase.instance.database),
         wishlist: SqliteWishlistRepository(() => AppDatabase.instance.database),
         profile: SqliteProfileRepository(() => AppDatabase.instance.database),
+        orders: SqliteOrderRepository(() => AppDatabase.instance.database),
         auth: authProvider,
         settings: settings,
       ),
@@ -95,6 +101,8 @@ class ShopLiteApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<ProductRepository>.value(value: deps.products),
+
+        Provider<OrderRepository>.value(value: deps.orders),
         ChangeNotifierProvider<AuthProvider>.value(value: deps.auth),
         ChangeNotifierProvider<SettingsProvider>.value(value: deps.settings),
         ChangeNotifierProvider(create: (_) => ShellTabs()),
@@ -123,8 +131,12 @@ class ShopLiteApp extends StatelessWidget {
           create: (context) =>
               ProfileProvider(deps.profile, context.read<AuthProvider>()),
         ),
+        ChangeNotifierProvider(
+          lazy: false,
+          create: (context) =>
+              OrdersProvider(deps.orders, context.read<AuthProvider>()),
+        ),
       ],
-
       child: Consumer<SettingsProvider>(
         builder: (context, settings, child) {
           return MaterialApp(
