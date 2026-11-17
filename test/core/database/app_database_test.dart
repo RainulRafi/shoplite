@@ -26,6 +26,8 @@ void main() {
         'wishlist_items',
         'profile_overrides',
         'app_settings',
+        'orders',
+        'order_items',
       ]),
     );
   });
