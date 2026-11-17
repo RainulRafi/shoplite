@@ -10,6 +10,10 @@ import '../data/product_repository.dart';
 import 'product_detail_provider.dart';
 import 'widgets/product_image.dart';
 import 'widgets/stock_note.dart';
+import '../../cart/presentation/cart_provider.dart';
+import '../../shell/shell_tabs.dart';
+import '../../auth/presentation/require_login.dart';
+import '../../wishlist/presentation/wishlist_provider.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final Product product;
@@ -53,6 +57,7 @@ class _DetailView extends StatelessWidget {
         scrolledUnderElevation: 0,
         iconTheme: IconThemeData(color: c.ink),
         centerTitle: false,
+        actions: [_WishlistButton(product: product)],
         title: Text(
           'Details',
           style: TextStyle(
@@ -73,6 +78,7 @@ class _DetailView extends StatelessWidget {
               : const SizedBox(height: 2),
         ),
       ),
+      bottomNavigationBar: _AddToCartBar(product: product),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
         children: [
@@ -326,6 +332,191 @@ class _RefreshNotice extends StatelessWidget {
               child: const Text('Retry'),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _AddToCartBar extends StatelessWidget {
+  final Product product;
+
+  const _AddToCartBar({required this.product});
+
+  void _add(BuildContext context) {
+    final cart = context.read<CartProvider>();
+    final tabs = context.read<ShellTabs>();
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
+    final result = cart.addProduct(product);
+    messenger.clearSnackBars();
+
+    switch (result) {
+      case AddToCartResult.added:
+      case AddToCartResult.increased:
+        messenger.showSnackBar(
+          SnackBar(
+            content: const Text('Added to your cart.'),
+            action: SnackBarAction(
+              label: 'View cart',
+
+              onPressed: () {
+                navigator.popUntil((route) => route.isFirst);
+                tabs.go(ShellTab.cart);
+              },
+            ),
+          ),
+        );
+      case AddToCartResult.limitReached:
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text('You already have all we have in stock.'),
+          ),
+        );
+      case AddToCartResult.outOfStock:
+        messenger.showSnackBar(
+          const SnackBar(content: Text('This product is out of stock.')),
+        );
+      case AddToCartResult.notReady:
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text('Your cart is still loading. Try again in a moment.'),
+          ),
+        );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final cart = context.watch<CartProvider>();
+    final inCart = cart.quantityOf(product.id);
+
+    final bool canAdd;
+    final String label;
+    if (!product.inStock) {
+      canAdd = false;
+      label = 'Out of stock';
+    } else if (inCart >= product.stock) {
+      canAdd = false;
+      label = 'Maximum in your cart';
+    } else {
+      canAdd = cart.status == CartStatus.ready;
+      label = inCart > 0 ? 'Add another ($inCart in cart)' : 'Add to cart';
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: c.surface,
+        border: Border(top: BorderSide(color: c.border)),
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  formatPrice(
+                    product.hasDiscount
+                        ? product.discountedPrice
+                        : product.price,
+                  ),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: c.ink,
+                  ),
+                ),
+                if (product.hasDiscount)
+                  Text(
+                    formatPrice(product.price),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: c.faint,
+                      decoration: TextDecoration.lineThrough,
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: FilledButton(
+                onPressed: canAdd ? () => _add(context) : null,
+                style: FilledButton.styleFrom(
+                  backgroundColor: c.accent,
+                  foregroundColor: c.onAccent,
+                  minimumSize: const Size.fromHeight(48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
+                ),
+                child: Text(label),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WishlistButton extends StatelessWidget {
+  final Product product;
+
+  const _WishlistButton({required this.product});
+
+  Future<void> _toggle(BuildContext context) async {
+    final wishlist = context.read<WishlistProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final signedIn = await requireLogin(
+      context,
+      reason: 'Sign in to save items to your wishlist.',
+    );
+    if (!signedIn) return;
+    final result = await wishlist.toggle(product);
+    messenger.clearSnackBars();
+    switch (result) {
+      case WishlistResult.added:
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Saved to your wishlist.')),
+        );
+      case WishlistResult.removed:
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Removed from your wishlist.')),
+        );
+      case WishlistResult.failed:
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Could not update your wishlist.')),
+        );
+      case WishlistResult.signInRequired:
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+
+    final saved = context.select<WishlistProvider, bool>(
+      (w) => w.contains(product.id),
+    );
+
+    return IconButton(
+      onPressed: () => _toggle(context),
+      tooltip: saved ? 'Remove from wishlist' : 'Save to wishlist',
+      constraints: const BoxConstraints.tightFor(width: 48, height: 48),
+      icon: Icon(
+        saved ? Icons.favorite : Icons.favorite_border,
+        color: saved ? c.accentFg : c.ink,
       ),
     );
   }
