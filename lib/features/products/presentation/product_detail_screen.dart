@@ -14,6 +14,7 @@ import '../../cart/presentation/cart_provider.dart';
 import '../../shell/shell_tabs.dart';
 import '../../auth/presentation/require_login.dart';
 import '../../wishlist/presentation/wishlist_provider.dart';
+import '../../browsing/presentation/browsing_provider.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final Product product;
@@ -23,9 +24,11 @@ class ProductDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (ctx) =>
-          ProductDetailProvider(ctx.read<ProductRepository>(), product)
-            ..refresh(),
+      create: (ctx) => ProductDetailProvider(
+        ctx.read<ProductRepository>(),
+        product,
+        onViewed: ctx.read<BrowsingProvider>().recordView,
+      )..refresh(),
       child: const _DetailView(),
     );
   }
