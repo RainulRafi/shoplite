@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 
+
 class SearchField extends StatelessWidget {
   final TextEditingController controller;
+  final FocusNode? focusNode;
   final ValueChanged<String> onChanged;
   final ValueChanged<String> onSubmitted;
   final VoidCallback onClear;
@@ -11,6 +13,7 @@ class SearchField extends StatelessWidget {
   const SearchField({
     super.key,
     required this.controller,
+    this.focusNode,
     required this.onChanged,
     required this.onSubmitted,
     required this.onClear,
@@ -30,6 +33,7 @@ class SearchField extends StatelessWidget {
       builder: (context, value, child) {
         return TextField(
           controller: controller,
+          focusNode: focusNode,
           onChanged: onChanged,
           onSubmitted: onSubmitted,
           textInputAction: TextInputAction.search,
@@ -51,7 +55,6 @@ class SearchField extends StatelessWidget {
             contentPadding: const EdgeInsets.symmetric(vertical: 14),
             border: border(Colors.transparent, 0),
             enabledBorder: border(Colors.transparent, 0),
-
             focusedBorder: border(c.accentFg, 1.5),
           ),
         );
