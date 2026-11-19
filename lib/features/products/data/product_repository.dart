@@ -1,5 +1,8 @@
 import 'product.dart';
+import 'product_category.dart';
 import 'product_page.dart';
+
+enum HomeRank { deals, topRated }
 
 abstract class ProductRepository {
   Future<ProductPage> fetchProducts({
@@ -9,4 +12,10 @@ abstract class ProductRepository {
   });
 
   Future<Product> fetchProduct(int id);
+
+  Future<List<ProductCategory>> fetchCategories();
+
+  Future<ProductPage> fetchByCategory(String slug);
+
+  Future<ProductPage> fetchTop(HomeRank rank, {int limit = 10});
 }

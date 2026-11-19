@@ -14,9 +14,13 @@ import 'features/addresses/data/sqlite_address_repository.dart';
 import 'features/addresses/presentation/address_provider.dart';
 import 'features/auth/data/api_auth_repository.dart';
 import 'features/auth/presentation/auth_provider.dart';
+import 'features/browsing/data/browsing_repository.dart';
+import 'features/browsing/data/sqlite_browsing_repository.dart';
+import 'features/browsing/presentation/browsing_provider.dart';
 import 'features/cart/data/cart_repository.dart';
 import 'features/cart/data/sqlite_cart_repository.dart';
 import 'features/cart/presentation/cart_provider.dart';
+import 'features/home/presentation/home_provider.dart';
 import 'features/orders/data/order_repository.dart';
 import 'features/orders/data/sqlite_order_repository.dart';
 import 'features/orders/presentation/orders_provider.dart';
@@ -41,6 +45,7 @@ class AppDependencies {
   final WishlistRepository wishlist;
   final ProfileRepository profile;
   final OrderRepository orders;
+  final BrowsingRepository browsing;
   final AuthProvider auth;
   final SettingsProvider settings;
 
@@ -51,6 +56,7 @@ class AppDependencies {
     required this.wishlist,
     required this.profile,
     required this.orders,
+    required this.browsing,
     required this.auth,
     required this.settings,
   });
@@ -84,6 +90,7 @@ Future<void> main() async {
         wishlist: SqliteWishlistRepository(() => AppDatabase.instance.database),
         profile: SqliteProfileRepository(() => AppDatabase.instance.database),
         orders: SqliteOrderRepository(() => AppDatabase.instance.database),
+        browsing: SqliteBrowsingRepository(() => AppDatabase.instance.database),
         auth: authProvider,
         settings: settings,
       ),
@@ -101,7 +108,6 @@ class ShopLiteApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<ProductRepository>.value(value: deps.products),
-
         Provider<OrderRepository>.value(value: deps.orders),
         ChangeNotifierProvider<AuthProvider>.value(value: deps.auth),
         ChangeNotifierProvider<SettingsProvider>.value(value: deps.settings),
@@ -109,6 +115,11 @@ class ShopLiteApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) =>
               ProductListProvider(context.read<ProductRepository>())..load(),
+        ),
+
+        ChangeNotifierProvider(
+          create: (context) =>
+              HomeProvider(context.read<ProductRepository>())..load(),
         ),
 
         ChangeNotifierProvider(
@@ -135,6 +146,11 @@ class ShopLiteApp extends StatelessWidget {
           lazy: false,
           create: (context) =>
               OrdersProvider(deps.orders, context.read<AuthProvider>()),
+        ),
+        ChangeNotifierProvider(
+          lazy: false,
+          create: (context) =>
+              BrowsingProvider(deps.browsing, context.read<AuthProvider>()),
         ),
       ],
       child: Consumer<SettingsProvider>(

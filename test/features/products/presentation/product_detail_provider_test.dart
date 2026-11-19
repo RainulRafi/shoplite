@@ -61,4 +61,54 @@ void main() {
 
     await running;
   });
+
+  test(
+    'the viewed callback runs at the start and again when a fresh copy arrives',
+    () async {
+      final seen = <String>[];
+      when(() => repo.fetchProduct(1))
+          .thenAnswer((_) async => _product('Fresh'));
+      final provider = ProductDetailProvider(
+        repo,
+        _product('Old'),
+        onViewed: (p) => seen.add(p.title),
+      );
+
+      await Future<void>.delayed(Duration.zero);
+      expect(seen, ['Old']);
+
+      await provider.refresh();
+      expect(seen, ['Old', 'Fresh']);
+    },
+  );
+
+  test('a failed refresh does not report another view, and a disposed provider reports none', () async {
+    final seen = <String>[];
+    when(() => repo.fetchProduct(1)).thenAnswer(
+      (_) => Future.error(
+        const ApiException(
+          type: ApiErrorType.noConnection,
+          message: 'No internet',
+        ),
+      ),
+    );
+
+    final provider = ProductDetailProvider(
+      repo,
+      _product('Old'),
+      onViewed: (p) => seen.add(p.title),
+    );
+    await Future<void>.delayed(Duration.zero);
+    await provider.refresh();
+    expect(seen, ['Old']);
+
+    final closedQuickly = ProductDetailProvider(
+      repo,
+      _product('Gone'),
+      onViewed: (p) => seen.add(p.title),
+    );
+    closedQuickly.dispose();
+    await Future<void>.delayed(Duration.zero);
+    expect(seen, ['Old']);
+  });
 }

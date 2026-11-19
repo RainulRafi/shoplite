@@ -115,4 +115,43 @@ void main() {
       ),
     );
   });
+  test('fetchCategories reads objects and plain strings', () async {
+    when(() => api.get('/products/categories')).thenAnswer(
+      (_) async => [
+        {'slug': 'beauty', 'name': 'Beauty', 'url': 'x'},
+        'mens-shirts',
+      ],
+    );
+
+    final list = await repository.fetchCategories();
+
+    expect(list.map((c) => c.slug), ['beauty', 'mens-shirts']);
+    expect(list.last.name, 'Mens shirts');
+  });
+
+  test(
+    'fetchByCategory asks for the whole category and encodes the slug',
+    () async {
+      when(() => api.get(any(), queryParameters: any(named: 'queryParameters')))
+          .thenAnswer(
+            (_) async => {
+              'products': [
+                {'id': 1, 'title': 'A', 'price': 1},
+              ],
+              'total': 1,
+            },
+          );
+
+      final page = await repository.fetchByCategory('mens-shirts');
+
+      expect(page.products.single.title, 'A');
+      final sent = verify(
+        () => api.get(
+          '/products/category/mens-shirts',
+          queryParameters: captureAny(named: 'queryParameters'),
+        ),
+      ).captured.single;
+      expect(sent, {'limit': 0});
+    },
+  );
 }

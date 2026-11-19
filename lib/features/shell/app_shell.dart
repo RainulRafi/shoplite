@@ -1,29 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../auth/presentation/account_screen.dart';
+import '../cart/presentation/cart_provider.dart';
+import '../cart/presentation/cart_screen.dart';
+import '../home/presentation/home_screen.dart';
 import '../products/presentation/product_list_screen.dart';
+import 'shell_tabs.dart';
 
-class AppShell extends StatefulWidget {
+class AppShell extends StatelessWidget {
   const AppShell({super.key});
-
-  @override
-  State<AppShell> createState() => _AppShellState();
-}
-
-class _AppShellState extends State<AppShell> {
-  int _index = 0;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final tabs = context.watch<ShellTabs>();
 
     final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
 
     return Scaffold(
       body: IndexedStack(
-        index: _index,
-        children: const [ProductListScreen(), AccountScreen()],
+        index: tabs.current.index,
+        children: const [
+          HomeScreen(),
+          ProductListScreen(),
+          CartScreen(),
+          AccountScreen(),
+        ],
       ),
       bottomNavigationBar: keyboardOpen
           ? null
@@ -32,8 +36,8 @@ class _AppShellState extends State<AppShell> {
                 border: Border(top: BorderSide(color: c.border)),
               ),
               child: BottomNavigationBar(
-                currentIndex: _index,
-                onTap: (i) => setState(() => _index = i),
+                currentIndex: tabs.current.index,
+                onTap: (i) => tabs.go(ShellTab.values[i]),
                 backgroundColor: c.surface,
                 elevation: 0,
                 type: BottomNavigationBarType.fixed,
@@ -46,9 +50,19 @@ class _AppShellState extends State<AppShell> {
                 unselectedLabelStyle: const TextStyle(fontSize: 12),
                 items: const [
                   BottomNavigationBarItem(
+                    icon: Icon(Icons.home_outlined),
+                    activeIcon: Icon(Icons.home),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
                     icon: Icon(Icons.storefront_outlined),
                     activeIcon: Icon(Icons.storefront),
                     label: 'Shop',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: _CartIcon(active: false),
+                    activeIcon: _CartIcon(active: true),
+                    label: 'Cart',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.person_outline),
@@ -58,6 +72,26 @@ class _AppShellState extends State<AppShell> {
                 ],
               ),
             ),
+    );
+  }
+}
+
+class _CartIcon extends StatelessWidget {
+  final bool active;
+
+  const _CartIcon({required this.active});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final count = context.select<CartProvider, int>((cart) => cart.itemCount);
+
+    return Badge(
+      isLabelVisible: count > 0,
+      label: Text(count > 99 ? '99+' : '$count'),
+      backgroundColor: c.accent,
+      textColor: c.onAccent,
+      child: Icon(active ? Icons.shopping_cart : Icons.shopping_cart_outlined),
     );
   }
 }
