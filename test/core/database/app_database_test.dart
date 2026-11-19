@@ -28,6 +28,8 @@ void main() {
         'app_settings',
         'orders',
         'order_items',
+        'recently_viewed',
+        'search_history',
       ]),
     );
   });

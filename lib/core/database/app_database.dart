@@ -131,6 +131,34 @@ class AppDatabase {
       )
       ''',
     ],
+
+    [
+      '''
+      CREATE TABLE recently_viewed(
+        owner_id TEXT NOT NULL,
+        product_id INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        brand TEXT,
+        thumbnail TEXT NOT NULL,
+        list_price_cents INTEGER NOT NULL,
+        unit_price_cents INTEGER NOT NULL,
+        discount_percent REAL NOT NULL,
+        viewed_at INTEGER NOT NULL,
+        PRIMARY KEY (owner_id, product_id)
+      )
+      ''',
+      'CREATE INDEX idx_recently_viewed_time ON recently_viewed(owner_id, viewed_at DESC)',
+
+      '''
+      CREATE TABLE search_history(
+        owner_id TEXT NOT NULL,
+        term_key TEXT NOT NULL,
+        term TEXT NOT NULL,
+        searched_at INTEGER NOT NULL,
+        PRIMARY KEY (owner_id, term_key)
+      )
+      ''',
+    ],
   ];
 
   static int get schemaVersion => _migrations.length;
