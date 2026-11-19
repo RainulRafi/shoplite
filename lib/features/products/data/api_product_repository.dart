@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_exception.dart';
 import 'product.dart';
+import 'product_category.dart';
 import 'product_page.dart';
 import 'product_repository.dart';
 
@@ -30,6 +31,41 @@ class ApiProductRepository implements ProductRepository {
   Future<Product> fetchProduct(int id) async {
     final json = await _api.get('/products/$id');
     return _parse(() => Product.fromJson(json as Map<String, dynamic>));
+  }
+
+  @override
+  Future<List<ProductCategory>> fetchCategories() async {
+    final json = await _api.get('/products/categories');
+    return _parse(
+      () => (json as List<dynamic>).map(ProductCategory.fromJson).toList(),
+    );
+  }
+
+  @override
+  Future<ProductPage> fetchByCategory(String slug) async {
+    final json = await _api.get(
+      '/products/category/${Uri.encodeComponent(slug)}',
+      queryParameters: {'limit': 0},
+    );
+    return _parse(() => ProductPage.fromJson(json as Map<String, dynamic>));
+  }
+
+  @override
+  Future<ProductPage> fetchTop(HomeRank rank, {int limit = 10}) async {
+    final sortBy = switch (rank) {
+      HomeRank.deals => 'discountPercentage',
+      HomeRank.topRated => 'rating',
+    };
+    final json = await _api.get(
+      '/products',
+      queryParameters: {
+        'sortBy': sortBy,
+        'order': 'desc',
+        'limit': limit,
+        'skip': 0,
+      },
+    );
+    return _parse(() => ProductPage.fromJson(json as Map<String, dynamic>));
   }
 
   T _parse<T>(T Function() parse) {
