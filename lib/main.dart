@@ -21,6 +21,9 @@ import 'features/cart/data/cart_repository.dart';
 import 'features/cart/data/sqlite_cart_repository.dart';
 import 'features/cart/presentation/cart_provider.dart';
 import 'features/home/presentation/home_provider.dart';
+import 'features/notifications/data/notifications_repository.dart';
+import 'features/notifications/data/sqlite_notifications_repository.dart';
+import 'features/notifications/presentation/notifications_provider.dart';
 import 'features/orders/data/order_repository.dart';
 import 'features/orders/data/sqlite_order_repository.dart';
 import 'features/orders/presentation/orders_provider.dart';
@@ -30,6 +33,11 @@ import 'features/products/presentation/product_list_provider.dart';
 import 'features/profile/data/profile_repository.dart';
 import 'features/profile/data/sqlite_profile_repository.dart';
 import 'features/profile/presentation/profile_provider.dart';
+import 'features/reviews/data/reviews_repository.dart';
+import 'features/reviews/data/sqlite_reviews_repository.dart';
+import 'features/reviews/presentation/my_reviews_provider.dart';
+import 'features/settings/data/account_data_repository.dart';
+import 'features/settings/data/sqlite_account_data_repository.dart';
 import 'features/settings/data/sqlite_settings_repository.dart';
 import 'features/settings/presentation/settings_provider.dart';
 import 'features/shell/app_shell.dart';
@@ -46,6 +54,9 @@ class AppDependencies {
   final ProfileRepository profile;
   final OrderRepository orders;
   final BrowsingRepository browsing;
+  final ReviewsRepository reviews;
+  final NotificationsRepository notifications;
+  final AccountDataRepository accountData;
   final AuthProvider auth;
   final SettingsProvider settings;
 
@@ -57,6 +68,9 @@ class AppDependencies {
     required this.profile,
     required this.orders,
     required this.browsing,
+    required this.reviews,
+    required this.notifications,
+    required this.accountData,
     required this.auth,
     required this.settings,
   });
@@ -91,6 +105,13 @@ Future<void> main() async {
         profile: SqliteProfileRepository(() => AppDatabase.instance.database),
         orders: SqliteOrderRepository(() => AppDatabase.instance.database),
         browsing: SqliteBrowsingRepository(() => AppDatabase.instance.database),
+        reviews: SqliteReviewsRepository(() => AppDatabase.instance.database),
+        notifications: SqliteNotificationsRepository(
+          () => AppDatabase.instance.database,
+        ),
+        accountData: SqliteAccountDataRepository(
+          () => AppDatabase.instance.database,
+        ),
         auth: authProvider,
         settings: settings,
       ),
@@ -109,6 +130,7 @@ class ShopLiteApp extends StatelessWidget {
       providers: [
         Provider<ProductRepository>.value(value: deps.products),
         Provider<OrderRepository>.value(value: deps.orders),
+        Provider<AccountDataRepository>.value(value: deps.accountData),
         ChangeNotifierProvider<AuthProvider>.value(value: deps.auth),
         ChangeNotifierProvider<SettingsProvider>.value(value: deps.settings),
         ChangeNotifierProvider(create: (_) => ShellTabs()),
@@ -116,7 +138,6 @@ class ShopLiteApp extends StatelessWidget {
           create: (context) =>
               ProductListProvider(context.read<ProductRepository>())..load(),
         ),
-
         ChangeNotifierProvider(
           create: (context) =>
               HomeProvider(context.read<ProductRepository>())..load(),
@@ -151,6 +172,20 @@ class ShopLiteApp extends StatelessWidget {
           lazy: false,
           create: (context) =>
               BrowsingProvider(deps.browsing, context.read<AuthProvider>()),
+        ),
+        ChangeNotifierProvider(
+          lazy: false,
+          create: (context) =>
+              MyReviewsProvider(deps.reviews, context.read<AuthProvider>()),
+        ),
+
+        ChangeNotifierProvider(
+          lazy: false,
+          create: (context) => NotificationsProvider(
+            deps.notifications,
+            context.read<OrdersProvider>(),
+            context.read<AuthProvider>(),
+          ),
         ),
       ],
       child: Consumer<SettingsProvider>(
