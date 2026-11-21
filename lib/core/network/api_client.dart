@@ -8,6 +8,11 @@ import 'interceptors/auth_interceptor.dart';
 import 'interceptors/safe_log_interceptor.dart';
 
 Dio createDio() {
+  assert(
+    AppConfig.baseUrl.startsWith('http'),
+    'API_BASE_URL must start with http:// or https://, but it is "${AppConfig.baseUrl}"',
+  );
+
   final dio = Dio(
     BaseOptions(
       baseUrl: AppConfig.baseUrl,
@@ -27,6 +32,7 @@ class ApiClient {
     Dio? dio,
     TokenStore? tokenStore,
     void Function()? onSessionExpired,
+    int accessTokenMinutes = AppConfig.accessTokenMinutes,
   }) : _dio = dio ?? createDio() {
     if (tokenStore != null) {
       _dio.interceptors.add(
@@ -34,7 +40,7 @@ class ApiClient {
           dio: _dio,
           refreshDio: createDio(),
           store: tokenStore,
-          accessTokenMinutes: AppConfig.accessTokenMinutes,
+          accessTokenMinutes: accessTokenMinutes,
           onSessionExpired: onSessionExpired,
         ),
       );

@@ -6,14 +6,13 @@ class AppConfig {
     defaultValue: 'https://dummyjson.com',
   );
 
-  // Maximum time to establish a connection (reach the server).
   static const Duration connectTimeout = Duration(seconds: 10);
 
-  // Maximum time to wait for a response after connecting.
   static const Duration receiveTimeout = Duration(seconds: 15);
 
+  // --dart-define=ACCESS_TOKEN_MINUTES=1
   static const int accessTokenMinutes = int.fromEnvironment(
     'ACCESS_TOKEN_MINUTES',
-    defaultValue: 30,
+    defaultValue: 60,
   );
 }

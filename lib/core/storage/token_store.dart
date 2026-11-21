@@ -1,6 +1,6 @@
 class AuthTokens {
   final String accessToken;
-  final String refreshToken; // ফাঁকা মানে নেই
+  final String refreshToken;
 
   const AuthTokens({required this.accessToken, required this.refreshToken});
 
@@ -10,5 +10,9 @@ class AuthTokens {
 abstract class TokenStore {
   Future<AuthTokens?> read();
   Future<void> write(AuthTokens tokens);
+
+  Future<int?> readUserId();
+  Future<void> writeUserId(int id);
+
   Future<void> clear();
 }

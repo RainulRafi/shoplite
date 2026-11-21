@@ -34,3 +34,11 @@ String formatDateRange(DateTime from, DateTime to) {
   if (from.day == to.day) return '${from.day} $fromMonth';
   return '${from.day} to ${to.day} $toMonth';
 }
+
+String formatRelative(DateTime at, DateTime now) {
+  final diff = now.difference(at);
+  if (diff.inSeconds < 60) return 'Just now';
+  if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
+  if (diff.inHours < 24) return '${diff.inHours} h ago';
+  return formatDate(at);
+}
