@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../core/config/app_config.dart';
 import '../core/theme/app_colors.dart';
+import '../core/config/app_info.dart';
+import '../core/config/app_config.dart';
 
 class StyleGuideScreen extends StatelessWidget {
   const StyleGuideScreen({super.key});
@@ -347,10 +348,12 @@ class StyleGuideScreen extends StatelessWidget {
           ),
 
           _section('CONFIG', c),
-          // Ticket 0.1 proof: AppConfig is being read correctly.
+          // Ticket 0.1 proof: app configuration is being read correctly.
           Text(
-            AppConfig.baseUrl,
-            style: TextStyle(fontSize: 13, color: c.faint),
+            'API: ${AppConfig.baseUrl}\n'
+            'Token minutes: ${AppConfig.accessTokenMinutes}\n'
+            'Version: ${AppInfo.version}',
+            style: TextStyle(fontSize: 13, height: 1.5, color: c.faint),
           ),
         ],
       ),
