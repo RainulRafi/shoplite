@@ -15,6 +15,7 @@ import '../../shell/shell_tabs.dart';
 import '../../auth/presentation/require_login.dart';
 import '../../wishlist/presentation/wishlist_provider.dart';
 import '../../browsing/presentation/browsing_provider.dart';
+import '../../reviews/presentation/reviews_screen.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final Product product;
@@ -60,7 +61,10 @@ class _DetailView extends StatelessWidget {
         scrolledUnderElevation: 0,
         iconTheme: IconThemeData(color: c.ink),
         centerTitle: false,
-        actions: [_WishlistButton(product: product)],
+        actions: [
+          _ReviewsButton(product: product),
+          _WishlistButton(product: product),
+        ],
         title: Text(
           'Details',
           style: TextStyle(
@@ -520,6 +524,32 @@ class _WishlistButton extends StatelessWidget {
       icon: Icon(
         saved ? Icons.favorite : Icons.favorite_border,
         color: saved ? c.accentFg : c.ink,
+      ),
+    );
+  }
+}
+
+class _ReviewsButton extends StatelessWidget {
+  final Product product;
+
+  const _ReviewsButton({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+
+    return IconButton(
+      tooltip: 'Reviews',
+      constraints: const BoxConstraints.tightFor(width: 48, height: 48),
+      icon: Icon(Icons.rate_review_outlined, color: c.ink),
+      onPressed: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ReviewsScreen(
+            productId: product.id,
+            productTitle: product.title,
+            thumbnail: product.thumbnail,
+          ),
+        ),
       ),
     );
   }
