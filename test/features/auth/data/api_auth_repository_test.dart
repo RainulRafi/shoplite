@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:shoplite/core/config/app_config.dart';
 import 'package:shoplite/core/network/api_client.dart';
 import 'package:shoplite/core/network/api_exception.dart';
 import 'package:shoplite/features/auth/data/api_auth_repository.dart';
+import 'package:shoplite/core/config/app_config.dart';
 
 class MockApiClient extends Mock implements ApiClient {}
 

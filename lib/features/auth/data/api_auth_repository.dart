@@ -1,11 +1,12 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../core/config/app_config.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_exception.dart';
 import 'auth_repository.dart';
 import 'auth_session.dart';
 import 'user_profile.dart';
+
+import '../../../core/config/app_config.dart';
 
 class ApiAuthRepository implements AuthRepository {
   final ApiClient _api;

@@ -14,6 +14,7 @@ import 'auth_provider.dart';
 import 'require_login.dart';
 import '../../orders/presentation/orders_provider.dart';
 import '../../orders/presentation/orders_screen.dart';
+import 'account_more_menu.dart';
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -130,10 +131,15 @@ class _GuestView extends StatelessWidget {
         Divider(height: 1, color: c.border),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: _MenuRow(
-            icon: Icons.settings_outlined,
-            title: 'Settings',
-            onTap: () => _openSettings(context),
+          child: Column(
+            children: [
+              const AccountMoreMenu(signedIn: false),
+              _MenuRow(
+                icon: Icons.settings_outlined,
+                title: 'Settings',
+                onTap: () => _openSettings(context),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 8),
@@ -302,6 +308,7 @@ class _SignedInView extends StatelessWidget {
             ).push(MaterialPageRoute(builder: (_) => const WishlistScreen())),
           ),
           Divider(height: 1, color: c.border),
+          const AccountMoreMenu(signedIn: true),
           _MenuRow(
             icon: Icons.settings_outlined,
             title: 'Settings',

@@ -154,4 +154,40 @@ void main() {
       expect(sent, {'limit': 0});
     },
   );
+  test('fetchReviews reads the reviews and tolerates missing fields', () async {
+    when(() => api.get(any(), queryParameters: any(named: 'queryParameters')))
+        .thenAnswer(
+          (_) async => {
+            'id': 1,
+            'reviews': [
+              {
+                'rating': 5,
+                'comment': 'Great',
+                'date': '2025-04-30T09:41:02.000Z',
+                'reviewerName': 'Eleanor',
+              },
+              {'rating': 3},
+            ],
+          },
+        );
+
+    final list = await repository.fetchReviews(1);
+
+    expect(list.length, 2);
+    expect(list.first.reviewerName, 'Eleanor');
+    expect(list.first.rating, 5);
+    expect(list.last.reviewerName, 'Anonymous');
+    verify(() => api.get('/products/1', queryParameters: {'select': 'reviews'}))
+        .called(1);
+  });
+
+  test(
+    'fetchReviews gives an empty list when the product has no reviews field',
+    () async {
+      when(() => api.get(any(), queryParameters: any(named: 'queryParameters')))
+          .thenAnswer((_) async => {'id': 1});
+
+      expect(await repository.fetchReviews(1), isEmpty);
+    },
+  );
 }

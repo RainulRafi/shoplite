@@ -1,6 +1,7 @@
 import 'dart:io' show SocketException;
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 enum ApiErrorType {
   noConnection,
@@ -104,6 +105,11 @@ class ApiException implements Exception {
             type: ApiErrorType.noConnection,
             message:
                 'No internet connection. Check your network and try again.',
+          );
+        }
+        if (kDebugMode) {
+          debugPrint(
+            'Unclassified network error: ${e.error.runtimeType}: ${e.error}',
           );
         }
         return const ApiException(

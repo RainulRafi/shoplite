@@ -53,3 +53,49 @@ Content-Type: application/json
   "refreshToken": "{{login.response.body.$.refreshToken}}",
   "expiresInMins": 30
 }
+
+### 12. ১ মিনিটের Token (মেয়াদ পরীক্ষার জন্য)
+# @name shortLogin
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "emilys",
+  "password": "emilyspass",
+  "expiresInMins": 1
+}
+
+### 13. এই Token দিয়ে এখনই
+GET {{base}}/auth/me
+Authorization: Bearer {{shortLogin.response.body.$.accessToken}}
+
+### 14. ১ মিনিট ১০ সেকেন্ড পর এটাই আবার চালাও (মেয়াদ শেষ)
+GET {{base}}/auth/me
+Authorization: Bearer {{shortLogin.response.body.$.accessToken}}
+
+### 15. ভুল Refresh Token
+POST {{base}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "not-a-real-token",
+  "expiresInMins": 1
+}
+
+### 16. স্টক আর সর্বনিম্ন অর্ডার সংখ্যা
+GET {{base}}/products?limit=10&select=title,stock,minimumOrderQuantity
+
+### 17. বিভাগের তালিকা
+GET {{base}}/products/categories
+
+### 18. এক বিভাগের সব পণ্য: products-এর সংখ্যা আর total মেলে কিনা দেখো
+GET {{base}}/products/category/smartphones?limit=0
+
+### 19. সবচেয়ে বেশি ছাড় (Home-এর Deals)
+GET {{base}}/products?sortBy=discountPercentage&order=desc&limit=5&select=title,discountPercentage
+
+### 20. সবচেয়ে বেশি রেটিং
+GET {{base}}/products?sortBy=rating&order=desc&limit=5&select=title,rating
+
+### 21. সব পণ্য একসাথে
+GET {{base}}/products?limit=0&select=title,price,rating,stock,category

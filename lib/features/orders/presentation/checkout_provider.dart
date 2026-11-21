@@ -43,15 +43,14 @@ class CheckoutProvider extends ChangeNotifier {
 
   CheckoutProvider({
     required this._products,
-    required OrderRepository orders,
+    required this._orders,
     required this._cart,
     required this._addresses,
     required this._auth,
     required this._idempotencyKey,
     this._onPlaced,
     DateTime Function()? clock,
-  }) : _orders = orders,
-       _clock = clock ?? DateTime.now {
+  }) : _clock = clock ?? DateTime.now {
     _cart.addListener(notifyListeners);
     _addresses.addListener(notifyListeners);
   }

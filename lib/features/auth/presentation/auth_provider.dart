@@ -18,6 +18,9 @@ class AuthProvider extends ChangeNotifier {
 
   AuthStatus _status = AuthStatus.unknown;
   UserProfile? _user;
+
+  int? _userId;
+
   bool _profileLoading = false;
   ApiException? _profileError;
   bool _signingIn = false;
@@ -28,6 +31,7 @@ class AuthProvider extends ChangeNotifier {
   AuthStatus get status => _status;
   bool get isSignedIn => _status == AuthStatus.signedIn;
   UserProfile? get user => _user;
+  int? get userId => _userId;
   bool get profileLoading => _profileLoading;
   ApiException? get profileError => _profileError;
   bool get signingIn => _signingIn;
@@ -40,6 +44,7 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return;
     }
+    _userId = await _store.readUserId();
     _status = AuthStatus.signedIn;
     notifyListeners();
     await loadProfile();
@@ -56,8 +61,10 @@ class AuthProvider extends ChangeNotifier {
         password: password,
       );
       await _store.write(session.tokens);
+      await _store.writeUserId(session.user.id);
       _session++;
       _user = session.user;
+      _userId = session.user.id;
       _profileError = null;
       _profileLoading = false;
       _notice = null;
@@ -81,7 +88,14 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       final user = await _repository.fetchProfile();
-      if (session == _session) _user = user;
+      if (session == _session) {
+        _user = user;
+
+        if (_userId != user.id) {
+          _userId = user.id;
+          await _store.writeUserId(user.id);
+        }
+      }
     } on ApiException catch (e) {
       if (session == _session) _profileError = e;
     } finally {
@@ -93,6 +107,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> signOut() async {
     _session++;
     _user = null;
+    _userId = null;
     _profileError = null;
     _profileLoading = false;
     _notice = null;
@@ -105,6 +120,7 @@ class AuthProvider extends ChangeNotifier {
     if (_status != AuthStatus.signedIn) return;
     _session++;
     _user = null;
+    _userId = null;
     _profileError = null;
     _profileLoading = false;
     _notice = sessionEndedNotice;

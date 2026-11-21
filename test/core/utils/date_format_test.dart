@@ -39,4 +39,25 @@ void main() {
       '30 Dec 2026 to 2 Jan 2027',
     );
   });
+  test('relative times read like a notification', () {
+    final now = DateTime(2026, 11, 17, 12, 0);
+
+    expect(
+      formatRelative(now.subtract(const Duration(seconds: 20)), now),
+      'Just now',
+    );
+    expect(
+      formatRelative(now.add(const Duration(minutes: 5)), now),
+      'Just now',
+    );
+    expect(
+      formatRelative(now.subtract(const Duration(minutes: 5)), now),
+      '5 min ago',
+    );
+    expect(
+      formatRelative(now.subtract(const Duration(hours: 3)), now),
+      '3 h ago',
+    );
+    expect(formatRelative(DateTime(2026, 11, 14, 9, 0), now), '14 Nov 2026');
+  });
 }

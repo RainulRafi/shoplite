@@ -5,6 +5,7 @@ import 'token_store.dart';
 class SecureTokenStore implements TokenStore {
   static const String _accessKey = 'auth_access_token';
   static const String _refreshKey = 'auth_refresh_token';
+  static const String _userKey = 'auth_user_id';
 
   final FlutterSecureStorage _storage;
 
@@ -31,11 +32,27 @@ class SecureTokenStore implements TokenStore {
   }
 
   @override
+  Future<int?> readUserId() async {
+    try {
+      final raw = await _storage.read(key: _userKey);
+      return raw == null ? null : int.tryParse(raw);
+    } on Exception {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> writeUserId(int id) =>
+      _storage.write(key: _userKey, value: id.toString());
+
+  @override
   Future<void> clear() async {
     try {
       await _storage.delete(key: _accessKey);
       await _storage.delete(key: _refreshKey);
-    // ignore: empty_catches
-    } on Exception {}
+      await _storage.delete(key: _userKey);
+    } on Exception {
+      //ignore
+    }
   }
 }

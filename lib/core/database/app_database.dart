@@ -159,6 +159,29 @@ class AppDatabase {
       )
       ''',
     ],
+
+    [
+      '''
+      CREATE TABLE my_reviews(
+        owner_id TEXT NOT NULL,
+        product_id INTEGER NOT NULL,
+        product_title TEXT NOT NULL,
+        thumbnail TEXT NOT NULL,
+        rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+        comment TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        PRIMARY KEY (owner_id, product_id)
+      )
+      ''',
+      '''
+      CREATE TABLE notification_reads(
+        owner_id TEXT NOT NULL,
+        notification_key TEXT NOT NULL,
+        PRIMARY KEY (owner_id, notification_key)
+      )
+      ''',
+    ],
   ];
 
   static int get schemaVersion => _migrations.length;

@@ -30,6 +30,8 @@ void main() {
         'order_items',
         'recently_viewed',
         'search_history',
+        'my_reviews',
+        'notification_reads',
       ]),
     );
   });
