@@ -3,7 +3,6 @@ import 'package:shoplite/features/addresses/data/sqlite_address_repository.dart'
 import 'package:shoplite/features/cart/data/sqlite_cart_repository.dart';
 import 'package:shoplite/features/orders/data/sqlite_order_repository.dart';
 import 'package:shoplite/features/orders/domain/delivery_method.dart';
-import 'package:shoplite/features/orders/domain/order.dart';
 import 'package:shoplite/features/orders/domain/payment.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 

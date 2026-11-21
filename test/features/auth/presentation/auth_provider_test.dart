@@ -172,4 +172,38 @@ void main() {
       expect(auth.status, AuthStatus.signedIn);
     });
   });
+
+  group('remembering who is signed in', () {
+    test('the user id is saved at sign in and survives a restart', () async {
+      stubLoginSuccess();
+      await auth.signIn('emilys', 'pw');
+      expect(auth.userId, 1);
+      expect(await store.readUserId(), 1);
+
+      when(() => repo.fetchProfile()).thenAnswer((_) async => _emily);
+      final restarted = AuthProvider(repo, store);
+      await restarted.restore();
+      expect(restarted.userId, 1);
+    });
+
+    test('a missing id is filled in once the profile loads', () async {
+      await store.write(_tokens);
+      when(() => repo.fetchProfile()).thenAnswer((_) async => _emily);
+
+      await auth.restore();
+
+      expect(auth.userId, 1);
+      expect(await store.readUserId(), 1);
+    });
+
+    test('signing out forgets the id', () async {
+      stubLoginSuccess();
+      await auth.signIn('emilys', 'pw');
+
+      await auth.signOut();
+
+      expect(auth.userId, isNull);
+      expect(await store.readUserId(), isNull);
+    });
+  });
 }

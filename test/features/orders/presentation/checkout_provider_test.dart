@@ -14,7 +14,6 @@ import 'package:shoplite/features/orders/domain/payment.dart';
 import 'package:shoplite/features/orders/presentation/checkout_provider.dart';
 import 'package:shoplite/features/products/data/product_repository.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../../../helpers/auth_rig.dart';
 import '../../../helpers/order_fixtures.dart';

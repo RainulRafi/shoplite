@@ -107,8 +107,9 @@ class HomeProvider extends ChangeNotifier {
     } on ApiException catch (e) {
       if (run != _run) return null;
 
-      if (_categories.status != SectionStatus.ready)
+      if (_categories.status != SectionStatus.ready) {
         _categories = SectionState.failed(e);
+      }
       _notify();
       return e;
     }
@@ -141,8 +142,9 @@ class HomeProvider extends ChangeNotifier {
       return null;
     } on ApiException catch (e) {
       if (run != _run) return null;
-      if (_topRated.status != SectionStatus.ready)
+      if (_topRated.status != SectionStatus.ready) {
         _topRated = SectionState.failed(e);
+      }
       _notify();
       return e;
     }
