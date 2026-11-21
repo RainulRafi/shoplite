@@ -6,6 +6,7 @@ import 'product.dart';
 import 'product_category.dart';
 import 'product_page.dart';
 import 'product_repository.dart';
+import 'product_review.dart';
 
 class ApiProductRepository implements ProductRepository {
   final ApiClient _api;
@@ -66,6 +67,22 @@ class ApiProductRepository implements ProductRepository {
       },
     );
     return _parse(() => ProductPage.fromJson(json as Map<String, dynamic>));
+  }
+
+  @override
+  Future<List<ProductReview>> fetchReviews(int productId) async {
+    final json = await _api.get(
+      '/products/$productId',
+      queryParameters: {'select': 'reviews'},
+    );
+    return _parse(() {
+      final raw =
+          (json as Map<String, dynamic>)['reviews'] as List<dynamic>? ??
+          const [];
+      return raw
+          .map((e) => ProductReview.fromJson(e as Map<String, dynamic>))
+          .toList();
+    });
   }
 
   T _parse<T>(T Function() parse) {
