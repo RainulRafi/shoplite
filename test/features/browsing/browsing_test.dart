@@ -131,7 +131,8 @@ void main() {
       await waitUntil(() => browsing.searches.isEmpty);
     });
 
-    tearDown(() {
+    tearDown(() async {
+      await browsing.flush();
       browsing.dispose();
       rig.dispose();
     });

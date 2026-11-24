@@ -163,14 +163,18 @@ class _ReviewFormScreenState extends State<ReviewFormScreen> {
                       ),
                   ],
                 ),
-                if (_ratingError != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      _ratingError!,
-                      style: TextStyle(fontSize: 13, color: c.danger),
-                    ),
-                  ),
+                SizedBox(
+                  width: double.infinity,
+                  child: _ratingError == null
+                      ? null
+                      : Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            _ratingError!,
+                            style: TextStyle(fontSize: 13, color: c.danger),
+                          ),
+                        ),
+                ),
                 const SizedBox(height: 18),
 
                 const FieldLabel('Your review'),

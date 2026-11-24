@@ -245,11 +245,6 @@ class _OfferRail extends StatelessWidget {
     final c = context.colors;
     final coupon = Coupon.all.first; // SAVE10
 
-    final scale = MediaQuery.textScalerOf(context)
-        .scale(1.0)
-        .clamp(1.0, 1.6)
-        .toDouble();
-
     Widget card({
       required String title,
       required String body,
@@ -290,36 +285,39 @@ class _OfferRail extends StatelessWidget {
       );
     }
 
-    return SizedBox(
-      height: 90 + 40 * scale,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        children: [
-          card(
-            title: 'Free shipping',
-            body:
-                'On standard delivery for orders over ${PricingRules.freeShippingFrom.format()}.',
-          ),
-          const SizedBox(width: 12),
-          card(
-            title: coupon.code,
-            body: '${coupon.description}. Tap to copy the code.',
-            onTap: () {
-              Clipboard.setData(ClipboardData(text: coupon.code));
-              ScaffoldMessenger.of(context)
-                ..clearSnackBars()
-                ..showSnackBar(
-                  SnackBar(content: Text('${coupon.code} copied.')),
-                );
-            },
-          ),
-          const SizedBox(width: 12),
-          card(
-            title: 'Pay on delivery',
-            body: 'Cash on delivery is available on every order.',
-          ),
-        ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: IntrinsicHeight(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            card(
+              title: 'Free shipping',
+              body:
+                  'On standard delivery for orders over ${PricingRules.freeShippingFrom.format()}.',
+            ),
+            const SizedBox(width: 12),
+            card(
+              title: coupon.code,
+              body: '${coupon.description}. Tap to copy the code.',
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: coupon.code));
+                ScaffoldMessenger.of(context)
+                  ..clearSnackBars()
+                  ..showSnackBar(
+                    SnackBar(content: Text('${coupon.code} copied.')),
+                  );
+              },
+            ),
+            const SizedBox(width: 12),
+            card(
+              title: 'Pay on delivery',
+              body: 'Cash on delivery is available on every order.',
+            ),
+          ],
+        ),
       ),
     );
   }

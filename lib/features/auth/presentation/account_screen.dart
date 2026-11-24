@@ -14,6 +14,7 @@ import 'auth_provider.dart';
 import 'require_login.dart';
 import '../../orders/presentation/orders_provider.dart';
 import '../../orders/presentation/orders_screen.dart';
+import '../../settings/presentation/settings_screen.dart';
 import 'account_more_menu.dart';
 
 class AccountScreen extends StatelessWidget {
@@ -56,14 +57,8 @@ class AccountScreen extends StatelessWidget {
 }
 
 void _openSettings(BuildContext context) {
-  Navigator.of(context).push(
-    MaterialPageRoute<void>(
-      builder: (_) => Scaffold(
-        appBar: AppBar(title: const Text('Settings')),
-        body: const SizedBox.shrink(),
-      ),
-    ),
-  );
+  Navigator.of(context)
+      .push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
 }
 
 class _GuestView extends StatelessWidget {
