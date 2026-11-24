@@ -11,18 +11,18 @@ It is a practice app. Nothing is charged and nothing is delivered. The section
 
 <table>
   <tr>
-    <td align="center"><img src="docs/screenshots/01-home.png" width="170" alt="Home screen with categories, deals and recently viewed products"><br><sub>Home</sub></td>
-    <td align="center"><img src="docs/screenshots/02-shop-filters.png" width="170" alt="Shop with sort and filters"><br><sub>Sort and filter</sub></td>
-    <td align="center"><img src="docs/screenshots/03-product.png" width="170" alt="Product page"><br><sub>Product</sub></td>
-    <td align="center"><img src="docs/screenshots/04-cart.png" width="170" alt="Cart with a coupon and the price summary"><br><sub>Cart and coupon</sub></td>
-    <td align="center"><img src="docs/screenshots/05-checkout.png" width="170" alt="Checkout"><br><sub>Checkout</sub></td>
+    <td align="center"><img src="docs/screenshots/01-home.png.jpeg" width="170" alt="Home screen with categories, deals and recently viewed products"><br><sub>Home</sub></td>
+    <td align="center"><img src="docs/screenshots/02-shop-filters.png.jpeg" width="170" alt="Shop with sort and filters"><br><sub>Sort and filter</sub></td>
+    <td align="center"><img src="docs/screenshots/03-product.png.jpeg" width="170" alt="Product page"><br><sub>Product</sub></td>
+    <td align="center"><img src="docs/screenshots/04-cart.png.jpeg" width="170" alt="Cart with a coupon and the price summary"><br><sub>Cart and coupon</sub></td>
+    <td align="center"><img src="docs/screenshots/05-checkout.png.jpeg" width="170" alt="Checkout"><br><sub>Checkout</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/06-order.png" width="170" alt="Order details with a status timeline"><br><sub>Order timeline</sub></td>
-    <td align="center"><img src="docs/screenshots/07-account.png" width="170" alt="Account menu"><br><sub>Account</sub></td>
-    <td align="center"><img src="docs/screenshots/08-login.png" width="170" alt="Sign in screen"><br><sub>Sign in</sub></td>
-    <td align="center"><img src="docs/screenshots/09-settings.png" width="170" alt="Settings with theme choice"><br><sub>Settings</sub></td>
-    <td align="center"><img src="docs/screenshots/10-home-dark.png" width="170" alt="Home screen in the dark theme"><br><sub>Dark theme</sub></td>
+    <td align="center"><img src="docs/screenshots/06-order.png.jpeg" width="170" alt="Order details with a status timeline"><br><sub>Order timeline</sub></td>
+    <td align="center"><img src="docs/screenshots/07-account.png.jpeg" width="170" alt="Account menu"><br><sub>Account</sub></td>
+    <td align="center"><img src="docs/screenshots/08-login.png.jpeg" width="170" alt="Sign in screen"><br><sub>Sign in</sub></td>
+    <td align="center"><img src="docs/screenshots/09-settings.png.jpeg" width="170" alt="Settings with theme choice"><br><sub>Settings</sub></td>
+    <td align="center"><img src="docs/screenshots/10-home-dark.png.jpeg" width="170" alt="Home screen in the dark theme"><br><sub>Dark theme</sub></td>
   </tr>
 </table>
 
