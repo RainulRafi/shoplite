@@ -28,7 +28,7 @@ It is a practice app. Nothing is charged and nothing is delivered. The section
 
 ## Try it
 
-Download the [APK]([https://github.com/RainulRafi/shoplite/releases/latest]]).
+Download the [APK](https://github.com/RainulRafi/shoplite/releases/latest).
 It is signed with the standard debug key, so Android may ask you to confirm the install.
 
 Sign in with the demo account from the test service's public documentation:
