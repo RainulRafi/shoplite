@@ -10,20 +10,31 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+ 
+  FLUTTER_VERSION: '3.47.4'
+
 jobs:
   check:
     name: Analyze and test
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
 
       - name: Show versions
-        run: flutter --version
+        run: |
+          flutter --version
+          dart --version
+
+      - name: System libraries for the SQLite tests
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
 
       - name: Install packages
         run: flutter pub get
@@ -31,7 +42,7 @@ jobs:
       - name: Analyze
         run: flutter analyze
 
-      # শুধু test/ ফোল্ডার চলে। integration_test/ ফোনে চালাতে হয়, এখানে না
+      
       - name: Test
         run: flutter test --coverage
 
@@ -45,6 +56,7 @@ jobs:
     name: Build debug APK
     needs: check
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -55,6 +67,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
 
