@@ -313,7 +313,7 @@ class _AddressCard extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 4),
-          // Wrap: ফোনের ফন্ট বড় থাকলে বাটনগুলো নতুন লাইনে নামে, উপচে পড়ে না
+
           Wrap(
             children: [
               TextButton(
