@@ -26,9 +26,16 @@ It is a practice app. Nothing is charged and nothing is delivered. The section
   </tr>
 </table>
 
+| | |
+|---|---|
+| Platform | Android |
+| Built with | Flutter 3.47.4 (Dart 3.13.3), Provider, Dio, SQLite (sqflite), flutter_secure_storage |
+| Tests | 382 automated tests, 56.5% line coverage |
+| CI | GitHub Actions: analyze, test and a debug build on every push to `main` and every pull request |
+
 ## Try it
 
-Download the [APK](https://github.com/RainulRafi/shoplite/releases/latest).
+Download the APK from the [latest release](https://github.com/RainulRafi/shoplite/releases/latest).
 It is signed with the standard debug key, so Android may ask you to confirm the install.
 
 Sign in with the demo account from the test service's public documentation:
@@ -102,12 +109,19 @@ SQLite storage could be replaced by a real backend without touching a screen.
 - **Sign in tokens** are kept in the phone's secure storage and refreshed once when a request
   gets a 401. Only a rejected refresh token signs the person out, never a lost connection.
 
-### A bug the tests did not catch at first
+### Two bugs the tests did not catch at first
 
-The API address was read in two places, and the network client read it without a default
+**The API address.** It was read in two places, and the network client read it without a default
 value. With a plain `flutter run` every request went out with no host and failed quietly with a
 generic message. All the tests used a fake server, so none noticed. The address and timeouts now
 live in one `AppConfig`, and a test checks that the client really uses it.
+
+**A menu row that opened the wrong screen.** The Settings screen had its own passing test, but
+the Account menu opened a different, empty screen. A test now taps each row of the menu and
+checks the screen that opens.
+
+CI also failed at first because the project needs the same Flutter version as my machine and the
+workflow used whatever "stable" was. The workflow now pins the version.
 
 ## Tests
 
@@ -118,10 +132,12 @@ live in one `AppConfig`, and a test checks that the client really uses it.
   labels, text contrast)
 - A flow test that drives the real app on a phone: browse, add to cart, check out, find the order
 
-There are [N] automated tests with [X]% line coverage.
+There are 382 automated tests. Line coverage is 56.5% (3,755 of 6,642 lines), measured with
+`flutter test --coverage`. That number counts only the files that at least one test loads, and
+it does not include the phone flow test.
 
-Every pull request runs `flutter analyze`, `flutter test` and a debug build on GitHub Actions.
-The phone flow test is not part of CI.
+Every push to `main` and every pull request runs `flutter analyze`, `flutter test` and a debug
+build on GitHub Actions. The phone flow test is not part of CI.
 
 ```
 flutter pub get
@@ -132,7 +148,8 @@ flutter test integration_test/app_flow_test.dart -d <device id>
 
 ## Run it
 
-You need Flutter and an Android device or emulator.
+You need Flutter 3.47.4 (Dart 3.13.3) or newer, and an Android device or emulator. I built and
+tested it with 3.47.4.
 
 ```
 flutter pub get
