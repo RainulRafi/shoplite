@@ -55,6 +55,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   network_image_mock: ^2.1.1
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -77,3 +78,11 @@ flutter:
           weight: 600
         - asset: assets/fonts/PlusJakartaSans-Bold.ttf
           weight: 700
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/icon.png"
+  adaptive_icon_background: "#5B3F2E"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  
