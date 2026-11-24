@@ -65,6 +65,7 @@ void main() {
   });
 
   tearDown(() async {
+    await cart.flush();
     for (final checkout in made) {
       checkout.dispose();
     }
@@ -363,6 +364,8 @@ void main() {
     test('nothing can be placed when signed out', () async {
       final checkout = await readyCheckout();
       await rig.auth.signOut();
+
+      await waitUntil(() => cart.status == CartStatus.ready);
 
       expect(await checkout.placeOrder(), PlaceResult.notSignedIn);
     });

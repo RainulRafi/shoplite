@@ -39,6 +39,7 @@ void main() {
   });
 
   tearDown(() async {
+    await notifications.flush();
     notifications.dispose();
     orders.dispose();
     rig.dispose();
